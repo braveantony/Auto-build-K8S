@@ -33,7 +33,7 @@ IFS='' read -r -d '' KUBE_ADM_LET_INSTALL_COMMAND <<'EOT'
 if sudo apk add kubeadm kubelet --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted &> /dev/null; then
   echo "$w kubectl , kubeadm , kubelet install ok"
 else
-  echo "$w kubectl , kubeadm , kubelet failed ok" && exit 1
+  echo "$w kubectl , kubeadm , kubelet failed" && exit 1
 fi
 
 if sudo rc-update add kubelet default &> /dev/null; then
@@ -150,11 +150,13 @@ do
     echo "${a} Set bigred as admin failed!" && exit 1
   fi
 
-  kubectl taint node "$a" node-role.kubernetes.io/control-plane:NoSchedule- &> /dev/null
-  if [ "$?" == "0" ]; then
-    echo "node/"$a" untainted"
-  else
-    echo "node/"$a" untainted failed" && exit 1
+  if ! cat "$HOME"/init-config.yaml | grep 'taints: \[\]' &> /dev/null; then
+    kubectl taint node "$a" node-role.kubernetes.io/control-plane:NoSchedule- &> /dev/null
+    if [ "$?" == "0" ]; then
+      echo "node/"$a" untainted"
+    else
+      echo "node/"$a" untainted failed" && exit 1
+    fi
   fi
 done
 
