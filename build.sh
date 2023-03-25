@@ -15,7 +15,6 @@ COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
 
 # check vars
 check_vars() {
-
   var_names=("script_dir" "ALL_NODE" "MASTER_NODE" "WORK_NODE" "VIP" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF")
   for var_name in "${var_names[@]}"; do
       [ -z "${!var_name}" ] && echo "$var_name is unset." && exit 1
@@ -52,7 +51,6 @@ EOT
 
 # function
 KUBE_VIP () {
-
   export VIP="$VIP"
   export KVVERSION=$(curl -sL https://api.github.com/repos/kube-vip/kube-vip/releases | jq -r ".[0].name")
   alias kube-vip="sudo podman run --network host --rm ghcr.io/kube-vip/kube-vip:$KVVERSION" &> /dev/null
@@ -85,7 +83,7 @@ else
 fi
 
 # 3. Init Kubernetes
-sudo kubeadm init --upload-certs --config="${HOME}"/init-config.yaml &> /dev/null
+cat "${script_dir}"/init-config.yaml | envsubst |sudo kubeadm init --upload-certs --config= &> /dev/null
 if [ "$?" == "0" ]; then
   echo "Your Kubernetes control-plane has initialized successfully!"
 else
@@ -98,7 +96,7 @@ if ! (mkdir -p "$HOME"/.kube; sudo cp -i /etc/kubernetes/admin.conf "$HOME"/.kub
 fi
 
 # 5. 設定 K8S Master 可以執行 Pod
-if ! cat "$HOME"/init-config.yaml | grep 'taints: \[\]' &> /dev/null; then
+if ! cat "${script_dir}"/init-config.yaml | grep 'taints: \[\]' &> /dev/null; then
   kubectl taint node "$(hostname)" node-role.kubernetes.io/control-plane:NoSchedule- &> /dev/null
   if [ "$?" != "0" ]; then
     echo "node/"$(hostname)" untainted failed" && exit 1
