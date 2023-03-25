@@ -5,6 +5,7 @@ set -x
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+export HOSTNAME=$HOSTNAME
 ALL_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}')
 MASTER_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'm')
 WORK_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'w')
@@ -15,7 +16,7 @@ COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
 
 # check vars
 check_vars() {
-  var_names=("script_dir" "ALL_NODE" "MASTER_NODE" "WORK_NODE" "VIP" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF")
+  var_names=("script_dir" "HOSTNAME" "ALL_NODE" "MASTER_NODE" "WORK_NODE" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF")
   for var_name in "${var_names[@]}"; do
       [ -z "${!var_name}" ] && echo "$var_name is unset." && exit 1
   done
@@ -83,7 +84,13 @@ else
 fi
 
 # 3. Init Kubernetes
-cat "${script_dir}"/init-config.yaml | envsubst |sudo kubeadm init --upload-certs --config= &> /dev/null
+if [ "$COUNT_MASTER_NODE" -eq "1" ]; then
+  if ! sed -i '/Endpoint/d' init-config.yaml; then
+    echo "Setup init-config.yaml Error"
+  fi
+fi
+cat "${script_dir}"/init-config.yaml | envsubst > "${script_dir}"/init-tmp-config.yaml && mv "${script_dir}"/init-tmp-config.yaml "${script_dir}"/init-config.yaml
+sudo kubeadm init --upload-certs --config="${script_dir}"/init-config.yaml &> /dev/null
 if [ "$?" == "0" ]; then
   echo "Your Kubernetes control-plane has initialized successfully!"
 else
