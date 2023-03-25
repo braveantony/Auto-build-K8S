@@ -6,7 +6,7 @@ localAPIEndpoint:
 nodeRegistration:
   criSocket: unix:///run/crio/crio.sock         # change from CRI-O Unix Socket
   imagePullPolicy: IfNotPresent
-  name: k2m1                                                     # change from Master node hsotname
+  name: $HOSTNAME                                                     # change from Master node hsotname
   taints: []
 ---
 apiServer:
