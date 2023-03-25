@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Debug mode
-# set -x
+set -x
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -25,7 +25,7 @@ check_vars
 
 # Assign a heredoc value to a variable with read useless use of cat
 IFS='' read -r -d '' INSTALL_kubeadm_kubelet_kubectl <<'EOT'
-if ! sudo apk update &> /dev/null; sudo apk add kubeadm kubelet kubectl --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted &> /dev/null; then
+if ! (sudo apk update &> /dev/null; sudo apk add kubeadm kubelet kubectl --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted &> /dev/null); then
   echo "$a install kubectl , kubeadm , kubelet failed" && exit 1
 fi
 
@@ -63,7 +63,7 @@ KUBE_VIP () {
       --arp \
       --leaderElection | sudo tee /etc/kubernetes/manifests/kube-vip.yaml &> /dev/null
 
-  [ "$?" != "0" ] && echo "Kube_vip setup failed !" && exit 1
+  [ "$?" != "0" ] && echo "Kube_vip setup failed !" && exit 1 || return 0
 }
 
 
@@ -79,7 +79,7 @@ done
 if KUBE_VIP; then
   echo "Preparing mater nodes ok"
 else
-  echo "Preparing mater nodes Error"
+  echo "Preparing mater nodes Error" && exit 1
 fi
 
 # 3. Init Kubernetes
@@ -121,11 +121,8 @@ JOIN_WORKER_NODE=$(echo "sudo $(sudo kubeadm token create --print-join-command 2
 
 for a in $MASTER_NODE
 do
-  if [ "$COUNT_MASTER_NODE" -eq "1" ] && break
-
-  if [ "$a" == "$(hostname)" ]; then
-    continue
-  fi
+  [ "$COUNT_MASTER_NODE" -eq "1" ] && break
+  [ "$a" == "$(hostname)" ] && continue
 
   ssh "$a" "$JOIN_MASTER_NODE" &> /dev/null
   if [ "$?" != "0" ]; then
