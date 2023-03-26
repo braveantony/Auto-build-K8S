@@ -146,7 +146,7 @@ for a in $MASTER_NODE
 do
   INSTALL_K8S_PACKAGE
 
-  if [ "$a" -eq "${MASTER_NODE[0]}" ]; then
+  if [ "$a" == "${MASTER_NODE[0]}" ]; then
     [ "$COUNT_MASTER_NODE" -ne "1" ] && SET_VIP
     INIT_K8S
     SET_K8S_ADMIN
