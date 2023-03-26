@@ -2,7 +2,7 @@
 
 # Debug mode
 set -x
-set -eo pipefail
+set -o pipefail
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
