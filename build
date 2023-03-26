@@ -15,7 +15,7 @@ COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
 
 # check vars
 check_vars() {
-  var_names=("script_dir" "HOSTNAME" "ALL_NODE" "MASTER_NODE" "WORK_NODE" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF")
+  var_names=("script_dir" "HOSTNAME" "MASTER_NODE" "WORK_NODE" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF")
   for var_name in "${var_names[@]}"; do
       [ -z "${!var_name}" ] && echo "$var_name is unset." && exit 1
   done
