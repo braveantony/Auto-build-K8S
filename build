@@ -2,6 +2,7 @@
 
 # Debug mode
 set -x
+set -eo pipefail
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -43,6 +44,7 @@ IFS='' read -r -d '' INSTALL_kubeadm_kubelet <<'EOT'
 if ! sudo apk add kubeadm kubelet --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted &> /dev/null; then
   echo "$w install kubeadm , kubelet failed" && exit 1
 fi
+
 if ! sudo rc-update add kubelet default &> /dev/null; then
   echo "$w setup kubelet failed !" && exit 1
 fi
@@ -62,14 +64,13 @@ INSTALL_K8S_PACKAGE() {
   if ! ssh "$a" "${INSTALL_kubeadm_kubelet_kubectl}" 2> /dev/null; then
     exit 1
   elif [ "$COUNT_MASTER_NODE" -eq "1" ]; then
-    echo "Preparing mater nodes ok"
+    echo "Preparing control-plane nodes ok"
   fi
 }
 
 ## 2. Set up kube-vip
 SET_VIP() {
   ssh "$a" "export VIP=$VIP; export GWIF=$(ip r s | grep "^de" | cut -d ' ' -f 5); $SETUP_KUBE_VIP" &>/dev/null
-  [ "$?" == "0" ] && echo "Joining "$a" control-plane node ok" || (echo "Joining "$a" control-plane node Error" && exit 1)
 }
 
 ## 3. Init Kubernetes
@@ -138,7 +139,11 @@ for a in $MASTER_NODE
 do
   INSTALL_K8S_PACKAGE
   if [ "$a" == "$M1" ]; then
-    [ "$COUNT_MASTER_NODE" -ne "1" ] && SET_VIP || (grep "^controlPlaneEndpoint" "${script_dir}"/init-config.yaml && sed -i '/controlPlaneEndpoint/d' "${script_dir}"/init-config.yaml)
+    if [ "$COUNT_MASTER_NODE" -ne "1" ]; then
+      SET_VIP && echo "Preparing control-plane nodes ok"
+    else
+      grep "^controlPlaneEndpoint" "${script_dir}"/init-config.yaml && sed -i '/controlPlaneEndpoint/d' "${script_dir}"/init-config.yaml
+    fi
     INIT_K8S
     SET_K8S_ADMIN
     UNTAINT
@@ -149,6 +154,7 @@ do
     SET_REMOTE_BIGRED_AS_K8S_ADMIN
     UNTAINT
     SET_VIP
+    [ "$?" == "0" ] && echo "Joining "$a" control-plane node ok" || (echo "Joining "$a" control-plane node Error" && exit 1)
   fi
 done
 
