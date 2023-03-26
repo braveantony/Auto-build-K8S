@@ -144,10 +144,9 @@ done
 
 for w in $WORK_NODE
 do
-  ssh "$w" "$INSTALL_kubeadm_kubelet"
+  ssh "$w" "$INSTALL_kubeadm_kubelet" 1> /dev/null
 
-  ssh "$w" "$JOIN_WORKER_NODE" &> /dev/null
-  if [ "$?" != "0" ]; then
+  if ! ssh "$w" "$JOIN_WORKER_NODE" &> /dev/null; then
     echo "$w join failed" && exit 1
   fi
 
