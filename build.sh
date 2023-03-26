@@ -49,24 +49,15 @@ if ! sudo rc-update add kubelet default &> /dev/null; then
 fi
 EOT
 
+IFS='' read -r -d '' SETUP_KUBE_VIP <<'EOT'
+export KVVERSION=$(curl -sL https://api.github.com/repos/kube-vip/kube-vip/releases | jq -r ".[0].name")
+alias kube-vip="sudo podman run --network host --rm ghcr.io/kube-vip/kube-vip:$KVVERSION" &> /dev/null
 
-# function
-KUBE_VIP () {
-  export VIP="$VIP"
-  export KVVERSION=$(curl -sL https://api.github.com/repos/kube-vip/kube-vip/releases | jq -r ".[0].name")
-  alias kube-vip="sudo podman run --network host --rm ghcr.io/kube-vip/kube-vip:$KVVERSION" &> /dev/null
+sudo mkdir -p /etc/kubernetes/manifests/
+${BASH_ALIASES[kube-vip]} manifest pod --interface $GWIF --vip $VIP --controlplane --arp --leaderElection | sudo tee /etc/kubernetes/manifests/kube-vip.yaml
 
-  sudo mkdir -p /etc/kubernetes/manifests/
-  ${BASH_ALIASES[kube-vip]} manifest pod \
-      --interface $GWIF \
-      --vip $VIP \
-      --controlplane \
-      --arp \
-      --leaderElection | sudo tee /etc/kubernetes/manifests/kube-vip.yaml &> /dev/null
-
-  [ "$?" != "0" ] && echo "Kube_vip setup failed !" && exit 1 || return 0
-}
-
+[ "$?" != "0" ] && echo "Kube_vip setup failed !" && exit 1
+EOT
 
 # 1. Install kubectl , kubeadm , kubelet
 for a in $MASTER_NODE
@@ -77,7 +68,7 @@ do
 done
 
 # 2. Set up kube-vip
-if KUBE_VIP; then
+if ssh localhost $SETUP_KUBE_VIP &>/dev/null; then
   echo "Preparing mater nodes ok"
 else
   echo "Preparing mater nodes Error" && exit 1
@@ -148,7 +139,7 @@ do
     fi
   fi
 
-  ssh "$a" "$(typeset -f KUBE_VIP); KUBE_VIP" &>/dev/null
+  ssh "$a" "export VIP=$VIP; export GWIF=$(route -n | grep -e "^0.0.0.0 " | cut -d ' ' -f 1); $SETUP_KUBE_VIP" &>/dev/null
   [ "$?" == "0" ] && echo "Joining "$a" control-plane node ok" || (echo "Joining "$a" control-plane node Error" && exit 1)
 
 done
