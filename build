@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Debug mode
-# set -x
+set -x
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -12,6 +12,7 @@ VIP=$(cat "$script_dir"/init-config.yaml | grep "^controlP" | cut -d " " -f 2 | 
 CNI='https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml'
 COUNT_MASTER_NODE=$(echo ${MASTER_NODE} | awk '{print NF}')
 COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
+M1=$(echo "${MASTER_NODE}" | grep m1)
 
 # check vars
 check_vars() {
@@ -73,7 +74,6 @@ SET_VIP() {
 
 ## 3. Init Kubernetes
 INIT_K8S() {
-  grep "^controlPlaneEndpoint" "${script_dir}"/init-config.yaml && sed -i '/controlPlaneEndpoint/d' "${script_dir}"/init-config.yaml
   cat "${script_dir}"/init-config.yaml | envsubst > "${script_dir}"/init-tmp-config.yaml && mv "${script_dir}"/init-tmp-config.yaml "${script_dir}"/init-config.yaml
   sudo kubeadm init --upload-certs --config="${script_dir}"/init-config.yaml &> /dev/null
   if [ "$?" == "0" ]; then
@@ -137,9 +137,8 @@ SET_REMOTE_BIGRED_AS_K8S_ADMIN() {
 for a in $MASTER_NODE
 do
   INSTALL_K8S_PACKAGE
-
-  if [ "$a" == "${MASTER_NODE[0]}" ]; then
-    [ "$COUNT_MASTER_NODE" -ne "1" ] && SET_VIP
+  if [ "$a" == "$M1" ]; then
+    [ "$COUNT_MASTER_NODE" -ne "1" ] && SET_VIP || (grep "^controlPlaneEndpoint" "${script_dir}"/init-config.yaml && sed -i '/controlPlaneEndpoint/d' "${script_dir}"/init-config.yaml)
     INIT_K8S
     SET_K8S_ADMIN
     UNTAINT
