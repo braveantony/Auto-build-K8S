@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Debug mode
-set -x
+# set -x
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -60,17 +60,15 @@ EOT
 # 1. Install kubectl , kubeadm , kubelet
 for a in $MASTER_NODE
 do
-  if ! ssh "$a" "${INSTALL_kubeadm_kubelet_kubectl}"; then
+  if ! ssh "$a" "${INSTALL_kubeadm_kubelet_kubectl}" 1> /dev/null; then
     exit 1
   fi
 done
 
 # 2. Set up kube-vip
 if ssh localhost "export VIP=$VIP; export GWIF=$(ip r s | grep "^de" | cut -d ' ' -f 5); $SETUP_KUBE_VIP" &>/dev/null; then
-  echo $?
   echo "Preparing mater nodes ok"
 else
-  echo $?
   echo "Preparing mater nodes Error" && exit 1
 fi
 
@@ -132,7 +130,7 @@ do
     echo "${a} Set bigred as admin failed!" && exit 1
   fi
 
-  if ! cat "$HOME"/init-config.yaml | grep 'taints: \[\]' &> /dev/null; then
+  if ! cat "${script_dir}"/init-config.yaml | grep 'taints: \[\]' &> /dev/null; then
     kubectl taint node "$a" node-role.kubernetes.io/control-plane:NoSchedule- &> /dev/null
     if [ "$?" != "0" ]; then
       echo "node/"$a" untainted failed" && exit 1
