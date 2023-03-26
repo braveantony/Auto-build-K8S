@@ -80,9 +80,7 @@ SET_VIP() {
 
 ## 3. Init Kubernetes
 INIT_K8S() {
-  if ! sed -i '/Endpoint/d' init-config.yaml; then
-    echo "Setup init-config.yaml Error"
-  fi
+  grep "^Endpoint" "${script_dir}"/init-config.yaml && sed -i '/controlPlaneEndpoint/d' "${script_dir}"/init-config.yaml
   cat "${script_dir}"/init-config.yaml | envsubst > "${script_dir}"/init-tmp-config.yaml && mv "${script_dir}"/init-tmp-config.yaml "${script_dir}"/init-config.yaml
   sudo kubeadm init --upload-certs --config="${script_dir}"/init-config.yaml &> /dev/null
   if [ "$?" == "0" ]; then
