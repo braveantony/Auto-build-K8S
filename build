@@ -77,7 +77,7 @@ INIT_K8S() {
   cat "${script_dir}"/init-config.yaml | envsubst > "${script_dir}"/init-tmp-config.yaml && mv "${script_dir}"/init-tmp-config.yaml "${script_dir}"/init-config.yaml
   sudo kubeadm init --upload-certs --config="${script_dir}"/init-config.yaml &> /dev/null
   if [ "$?" == "0" ]; then
-    echo "Starting control-plane ok!"
+    echo "Starting control-plane ok"
   else
     echo "Your Kubernetes control-plane has initialized failed!" && exit 1
   fi
