@@ -60,7 +60,7 @@ EOT
 # 1. Install kubectl , kubeadm , kubelet
 for a in $MASTER_NODE
 do
-  if ! ssh "$a" "${INSTALL_kubeadm_kubelet_kubectl}" 1> /dev/null; then
+  if ! ssh "$a" "${INSTALL_kubeadm_kubelet_kubectl}" 2> /dev/null; then
     exit 1
   fi
 done
@@ -144,7 +144,7 @@ done
 
 for w in $WORK_NODE
 do
-  ssh "$w" "$INSTALL_kubeadm_kubelet" 1> /dev/null
+  ssh "$w" "$INSTALL_kubeadm_kubelet" 2> /dev/null
 
   if ! ssh "$w" "$JOIN_WORKER_NODE" &> /dev/null; then
     echo "$w join failed" && exit 1
@@ -153,6 +153,9 @@ do
   kubectl label node "$w" node-role.kubernetes.io/worker= &> /dev/null
   [ "$?" == "0" ] && echo "Joining "$w" worker node ok" || (echo "Joining "$w" worker node failed" && exit 1)
 done
+
+echo -e "\nCluster creation complete. You can now use the cluster with:"
+echo "kubectl get nodes"
 
 #for x in $ALL_NODE
 #do
