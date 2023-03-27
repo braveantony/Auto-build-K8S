@@ -13,7 +13,7 @@ M1=$(echo "${MASTER_NODE}" | grep m1)
 WORK_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'w')
 COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
 VIP=$(cat "$script_dir"/init-config.yaml | grep "^controlP" | cut -d " " -f 2 | cut -d ":" -f 1)
-CNI="calico"
+CNI="flannel"
 
 # check vars
 check_vars() {
