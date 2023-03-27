@@ -1,23 +1,23 @@
 #!/bin/bash
 
 # Debug mode
-set -x
-set -o pipefail
+#set -x
+#set -o pipefail
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 export HOSTNAME=$HOSTNAME
 MASTER_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'm')
-WORK_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'w')
-VIP=$(cat "$script_dir"/init-config.yaml | grep "^controlP" | cut -d " " -f 2 | cut -d ":" -f 1)
-CNI='https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml'
 COUNT_MASTER_NODE=$(echo ${MASTER_NODE} | awk '{print NF}')
-COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
 M1=$(echo "${MASTER_NODE}" | grep m1)
+WORK_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'w')
+COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
+VIP=$(cat "$script_dir"/init-config.yaml | grep "^controlP" | cut -d " " -f 2 | cut -d ":" -f 1)
+CNI="calico"
 
 # check vars
 check_vars() {
-  var_names=("script_dir" "HOSTNAME" "MASTER_NODE" "WORK_NODE" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF")
+  var_names=("script_dir" "HOSTNAME" "MASTER_NODE" "WORK_NODE" "COUNT_MASTER_NODE" "COUNT_WORK_NODE" "GWIF" "M1" "CNI")
   for var_name in "${var_names[@]}"; do
       [ -z "${!var_name}" ] && echo "$var_name is unset." && exit 1
   done
@@ -103,10 +103,15 @@ UNTAINT() {
 
 ## 6. Install CNI
 INSTALL_CNI() {
-  curl "$CNI" -o "${script_dir}/cni.yaml" &> /dev/null
-  [ ! -f "${script_dir}/cni.yaml" ] && echo "Download CNI package error" && exit 1
-  if ! kubectl apply -f "${script_dir}/cni.yaml" &> /dev/null; then
-    echo "Installing CNI failed"
+  if [ "$CNI" == "calico" ]; then
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml &> /dev/null
+    [ "$?" != "0" ] && echo "Setup CNI Error" && exit 1
+    kubectl create -f "${script_dir}"/cni/calico-custom-resources.yaml &> /dev/null
+    [ "$?" != "0" ] && echo "Setup CNI Error" && exit 1
+  fi
+  if [ "$CNI" == "flannel" ]; then
+    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml &> /dev/null
+    [ "$?" != "0" ] && echo "Setup CNI Error" && exit 1
   fi
 }
 
