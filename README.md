@@ -33,10 +33,10 @@ nano init-config.yaml
 - `networking.serviceSubnet`，Service 的 NetworkID 是 10.98.0.0/24
 - `controlPlaneEndpoint`，預設是 120.96.143.60:6443，須自行調整，如不是 HA 架構，請直接刪掉這行
 
-## 開始自動建立 K8S Cluster 1M2W
+## 開始建立 K8S Cluster 1M2W
 
 ```
-./build
+./build -d
 ```
 
 - 參數介紹
@@ -66,4 +66,49 @@ NAME   STATUS   ROLES           AGE   VERSION
 c2m1   Ready    control-plane   96s   v1.27.2
 c2w1   Ready    worker          63s   v1.27.2
 c2w2   Ready    worker          39s   v1.27.2
+```
+
+===
+
+## 建立 HA K8S Cluster 3M2W
+
+## 環境準備
+
+### 下載 Auto-build-K8S 並切換至工作目錄
+
+連線至 m1 主機執行以下命令
+
+```
+git clone git@github.com:braveantony/Auto-build-K8S.git && cd Auto-build-K8S/
+```
+
+## 編輯 K8S 初始化設定檔
+
+```
+nano init-config.yaml
+```
+
+> 必須設定 `controlPlaneEndpoint` 之值
+
+## 開始建立 HA K8S Cluster 3M2W
+
+```
+./build -d
+```
+
+- 參數介紹
+- `flannel`，CNI 使用 flannel，Default 是 Calico
+- `-d`，開啟 Debug mode，會收集程式運作資訊，並將之儲存在 `/tmp/build_message.log` 檔案之中
+
+正確螢幕輸出:
+```
+Preparing control-plane nodes ok
+Starting control-plane ok
+Joining c2m2 control-plane node ok
+Joining c2m3 control-plane node ok
+Joining c2w1 worker node ok
+Joining c2w2 worker node ok
+
+Cluster creation complete. You can now use the cluster with:
+kubectl get nodes
 ```
