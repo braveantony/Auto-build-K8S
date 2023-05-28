@@ -27,7 +27,7 @@ nano init-config.yaml
 - `nodeRegistration.criSocket`，CRI 預設是 CRI-O
 - `nodeRegistration.name`，node name 預設是 Host 主機名稱
 - `clusterName`，叢集名稱預設是 topgun
-- `kubernetesVersion`，安裝 K8S 之版本，預設是 1.27.2
+- `kubernetesVersion`，安裝 K8S 之版本，預設是根據 kubeadm 的版本做設定
 - `networking.dnsDomain`，K8S 用的 DNS Domain 預設是 k8s.org
 - `networking.podSubnet`，Pod 的 NetworkID 是 10.244.0.0/16
 - `networking.serviceSubnet`，Service 的 NetworkID 是 10.98.0.0/24
