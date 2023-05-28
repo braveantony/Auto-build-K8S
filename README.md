@@ -93,7 +93,7 @@ nano init-config.yaml
 ## 開始建立 HA K8S Cluster 3M2W
 
 ```
-./build -d
+./build flannel -d
 ```
 
 - 參數介紹
