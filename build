@@ -8,7 +8,8 @@ Debug() {
   #set -o pipefail
 }
 
-[[ "$1" == "-d" ]] && Debug
+[[ "$1" == "-d" ]] && Debug && shift
+[[ "$2" == "-d" ]] && Debug
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -19,7 +20,7 @@ M1=$(echo "${MASTER_NODE}" | grep m1)
 WORK_NODE=$(cat "${HOME}"/bin/mactohost | grep 'zip' | awk '{print $2}' | grep 'w')
 COUNT_WORK_NODE=$(echo ${WORK_NODE} | awk '{print NF}')
 VIP=$(cat "$script_dir"/init-config.yaml | grep "^controlP" | cut -d " " -f 2 | cut -d ":" -f 1)
-CNI="flannel"
+CNI="${1-calico}"
 
 # check vars
 check_vars() {
@@ -81,6 +82,7 @@ SET_VIP() {
 
 ## 3. Init Kubernetes
 INIT_K8S() {
+  export version=$(kubeadm version -o short)
   cat "${script_dir}"/init-config.yaml | envsubst > "${script_dir}"/init-tmp-config.yaml && mv "${script_dir}"/init-tmp-config.yaml "${script_dir}"/init-config.yaml
   sudo kubeadm init --upload-certs --config="${script_dir}"/init-config.yaml &> /dev/null
   if [ "$?" == "0" ]; then
