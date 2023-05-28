@@ -2,7 +2,7 @@
 
 ## 環境要求
 
-需使用 CNT.2023.v4.6 之 C1-1M3W 目錄下的程式，建立 K8S 所需之 VM
+需使用 CNT.2023.v4.6 之 C1-1M3W 目錄下的程式，建立 K8S 所需之 N
 
 ### 參考連結
 - [2023 Windows & VMware IaC 開發及使用手冊](https://hackmd.io/@QI-AN/iac)
