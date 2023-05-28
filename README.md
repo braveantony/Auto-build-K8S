@@ -11,7 +11,7 @@
 
 ## 下載 K8S-IaC 並切換至工作目錄
 ```
-$ git clone https://github.com/braveantony/K8S-IaC.git && cd K8S-IaC/
+$ git clone git@github.com:braveantony/Auto-build-K8S.git && cd K8S-IaC/
 ```
 
 ## 編輯 K8S 初始化設定檔
