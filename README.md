@@ -9,7 +9,7 @@
 
 ## 環境準備
 
-## 下載 K8S-IaC 並切換至工作目錄
+### 下載 K8S-IaC 並切換至工作目錄
 
 連線至 m1 主機執行以下命令
 
@@ -53,7 +53,7 @@ Cluster creation complete. You can now use the cluster with:
 kubectl get nodes
 ```
 
-## 檢查是否符合預期
+### 檢查是否符合預期
 
 ```
 $ kubectl get nodes
