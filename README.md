@@ -7,9 +7,12 @@
 ### 參考連結
 - [2023 Windows & VMware IaC 開發及使用手冊](https://hackmd.io/@QI-AN/iac)
 
-# 開始建立 Kubernetes Cluster
+# 環境準備
 
 ## 下載 K8S-IaC 並切換至工作目錄
+
+連線至 m1 主機執行以下命令
+
 ```
 $ git clone git@github.com:braveantony/Auto-build-K8S.git && cd K8S-IaC/
 ```
@@ -30,7 +33,7 @@ $ nano init-config.yaml
 - `networking.serviceSubnet`，Service 的 NetworkID 是 10.98.0.0/24
 - `controlPlaneEndpoint`，預設是 120.96.143.60:6443，須自行調整，如不是 HA 架構，請直接刪掉這行
 
-## 建立 K8S Cluster 1M2W
+## 開始自動建立 K8S Cluster 1M2W
 
 ```
 $ ./build
