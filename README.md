@@ -14,13 +14,13 @@
 連線至 m1 主機執行以下命令
 
 ```
-$ git clone git@github.com:braveantony/Auto-build-K8S.git && cd Auto-build-K8S/
+git clone git@github.com:braveantony/Auto-build-K8S.git && cd Auto-build-K8S/
 ```
 
 ## 編輯 K8S 初始化設定檔
 
 ```
-$ nano init-config.yaml
+nano init-config.yaml
 ```
 
 - `localAPIEndpoint.advertiseAddress`，預設是 $IP，系統的環境變數，代表本機的 IP
@@ -36,7 +36,7 @@ $ nano init-config.yaml
 ## 開始自動建立 K8S Cluster 1M2W
 
 ```
-$ ./build
+./build
 ```
 
 - 參數介紹
@@ -56,7 +56,7 @@ kubectl get nodes
 ### 檢查是否符合預期
 
 ```
-$ kubectl get nodes
+kubectl get nodes
 ```
 
 正確螢幕輸出:
