@@ -1,4 +1,4 @@
-# Install Kubernetes Cluster on Alpine Linux 3.18
+# Auto-build Kubernetes Cluster on Alpine Linux 3.18
 
 ## 環境要求
 
