@@ -36,6 +36,9 @@ $ nano init-config.yaml
 $ ./build
 ```
 
+- 參數介紹
+- `-d`，開啟 Debug mode，會收集程式運作時的 log 檔，並將資訊儲存在 /tmp/build_message.log 檔案之中
+
 正確螢幕輸出:
 ```
 Preparing control-plane nodes ok
