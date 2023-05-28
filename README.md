@@ -7,7 +7,7 @@
 ### 參考連結
 - [2023 Windows & VMware IaC 開發及使用手冊](https://hackmd.io/@QI-AN/iac)
 
-# 環境準備
+## 環境準備
 
 ## 下載 K8S-IaC 並切換至工作目錄
 
