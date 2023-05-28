@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # output log
- exec {BASH_XTRACEFD}>>/tmp/build_message.log
+# exec {BASH_XTRACEFD}>>/tmp/build_message.log
 
 # Debug mode
-set -x
-#set -o pipefail
+# set -x
+# set -o pipefail
 
 # Var
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
