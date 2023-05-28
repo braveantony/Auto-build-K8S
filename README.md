@@ -40,6 +40,7 @@ nano init-config.yaml
 ```
 
 - 參數介紹
+- `-flannel`，CNI 使用 flannel，Default 是 Calico
 - `-d`，開啟 Debug mode，會收集程式運作資訊，並將之儲存在 `/tmp/build_message.log` 檔案之中
 
 正確螢幕輸出:
