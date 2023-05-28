@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# output log
+ exec {BASH_XTRACEFD}>>/tmp/build_message.log
+
 # Debug mode
-#set -x
+set -x
 #set -o pipefail
 
 # Var
@@ -27,7 +30,7 @@ check_vars
 
 # Assign a heredoc value to a variable with read useless use of cat
 IFS='' read -r -d '' INSTALL_kubeadm_kubelet_kubectl <<'EOT'
-if ! (sudo apk update &> /dev/null; sudo apk add kubeadm kubelet kubectl --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted &> /dev/null); then
+if ! (sudo apk update &> /dev/null; sudo apk add kubeadm kubelet kubectl --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community/ --allow-untrusted &> /dev/null); then
   echo "$a install kubectl , kubeadm , kubelet failed" && exit 1
 fi
 
@@ -41,7 +44,7 @@ mkdir -p $HOME/.kube; sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config; 
 EOT
 
 IFS='' read -r -d '' INSTALL_kubeadm_kubelet <<'EOT'
-if ! sudo apk add kubeadm kubelet --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted &> /dev/null; then
+if ! sudo apk add kubeadm kubelet --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community/ --allow-untrusted &> /dev/null; then
   echo "$w install kubeadm , kubelet failed" && exit 1
 fi
 
