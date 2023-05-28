@@ -14,7 +14,7 @@
 連線至 m1 主機執行以下命令
 
 ```
-$ git clone git@github.com:braveantony/Auto-build-K8S.git && cd K8S-IaC/
+$ git clone git@github.com:braveantony/Auto-build-K8S.git && cd Auto-build-K8S/
 ```
 
 ## 編輯 K8S 初始化設定檔
